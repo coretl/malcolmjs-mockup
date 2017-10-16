@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Typography from 'material-ui/Typography';
 import AppBar from 'material-ui/AppBar';
 import ToolBar from 'material-ui/Toolbar';
+import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import Button from 'material-ui/Button';
 import Collapse from 'material-ui/transitions/Collapse';
@@ -16,22 +17,7 @@ import Divider from 'material-ui/Divider';
 import Hidden from 'material-ui/Hidden';
 import Select from 'material-ui/Select';
 import Switch from 'material-ui/Switch';
-import blueGrey from 'material-ui/colors/blueGrey';
-import amber from 'material-ui/colors/amber';
-import red from 'material-ui/colors/red';
-import lightBlue from 'material-ui/colors/lightBlue';
-
-import AddIcon from 'material-ui-icons/Add';
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import ExpandLessIcon from 'material-ui-icons/ExpandLess';
-import RadioButtonCheckedIcon from 'material-ui-icons/GpsFixed';
-import RadioButtonUncheckedIcon from 'material-ui-icons/GpsNotFixed';
-import OpenInNewIcon from 'material-ui-icons/OpenInNew';
-import CloseIcon from 'material-ui-icons/Close';
-import InfoOutlineIcon from 'material-ui-icons/InfoOutline';
-import MenuIcon from 'material-ui-icons/Menu';
-import ErrorIcon from 'material-ui-icons/Error';
-import WarningIcon from 'material-ui-icons/Warning';
+import {orange} from 'material-ui/colors';
 import Input from 'material-ui/Input';
 import withStyles from 'material-ui/styles/withStyles';
 import withRoot from '../components/withRoot';
@@ -61,17 +47,18 @@ const styles = theme => ({
   root: {
     height: "100vh",
   },
-  mainAppBar: {
+  appBar: {
     position: "relative",
   },
   hideDesktop: {
     [theme.breakpoints.up('sm')]: {
-      display: 'none',
+      width: theme.spacing.unit,
+      color: theme.palette.primary[500],
     },
   },
   drawer: {
-    position: "relative",
     width: drawerWidth,
+    overflowX: "hidden"
   },
   flex: {
     flex: 1,
@@ -82,41 +69,32 @@ const styles = theme => ({
     right: "48px",
   },
   breadCrumbs: {
-    width: "calc(100% - 96px)",
+    width: "calc(100% - 48px)",
     overflow: "hidden"
   },
-  nested: {
-    paddingLeft: theme.spacing.unit * 4,
-  },
   paramLabel: {
-    width: drawerWidth/2 - 48,
+    width: "calc(50% - 48px)",
+    paddingLeft: 0,
     overflow: "hidden",
   },
   paramValue: {
-    width: drawerWidth/2 - 48,
+    width: "calc(50% - 48px)",
+    marginRight: theme.spacing.unit * 2,
     overflow: "hidden",
   },
-  paramIcon: {
-    fill: blueGrey[200],
-    '&:hover': {
-      fill: blueGrey[400],
-    },
+  paramShortValue: {
+    marginRight: theme.spacing.unit * 2,
   },
-  warningIcon: {
-    fill: red[500],
-    '&:hover': {
-      fill: red[700],
-    },
+  backgroundToolbar: {
+    // Put background on so jerky transitions are less
+    backgroundColor: theme.palette.primary[500],
+    position: "fixed",
+    width: "100%",
+    ...theme.mixins.toolbar,
   },
-  errorIcon: {
-    fill: amber[500],
-    '&:hover': {
-      fill: amber[700],
-    },
-  },
-  ledIcon: {
-    fill: lightBlue[500],
-  },
+  warning: {
+    color: orange[500]
+  }
 });
 
 
@@ -160,32 +138,30 @@ class Index extends Component {
     const {classes, theme} = this.props;
 
     const leftDrawer = (
-      <div>
-        <AppBar className={classes.drawer}>
-          <ToolBar>
-            <IconButton onClick={this.handleToggle("left")}><CloseIcon/></IconButton>
-            <Typography type="subheading" className={classes.flex}>Panda 1</Typography>
-            <IconButton><OpenInNewIcon/></IconButton>
-          </ToolBar>
-        </AppBar>
+      <div className={classes.drawer}>
+        <ToolBar disableGutters>
+          <IconButton onClick={this.handleToggle("left")}>close</IconButton>
+          <Typography type="subheading" className={classes.flex}>Panda 1</Typography>
+          <IconButton>open_in_new</IconButton>
+        </ToolBar>
         <List>
           <ListItem button onClick={this.handleToggle("configure")}>
             <ListItemText primary="Configure" />
-            {this.state.open.has("configure") ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+            {this.state.open.has("configure") ? <Icon color="action">expand_less</Icon> : <Icon color="action">expand_more</Icon>}
           </ListItem>
           <Collapse in={this.state.open.has("configure")} transitionDuration="auto" unmountOnExit>
-            <ListItem dense>
-              <InfoOutlineIcon className={classes.paramIcon}/>
+            <ListItem dense disableGutters>
+              <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="File Path"/>
               <Input className={classes.paramValue} placeholder={0.1}/>
             </ListItem>
-            <ListItem dense>
-              <InfoOutlineIcon className={classes.paramIcon}/>
+            <ListItem dense disableGutters>
+              <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="Generator"/>
               <Button className={classes.paramValue} color="primary">Generator...</Button>
             </ListItem>
-            <ListItem dense>
-              <InfoOutlineIcon className={classes.paramIcon}/>
+            <ListItem dense disableGutters>
+              <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="A very long parameter name that should overflow the box"/>
               <Select
                 value={10}
@@ -199,27 +175,27 @@ class Index extends Component {
                 <MenuItem value={30}>Thirty</MenuItem>
               </Select>
             </ListItem>
-            <ListItem>
-              <ErrorIcon className={classes.errorIcon}/>
+            <ListItem dense disableGutters>
+              <IconButton><Icon color="error">error</Icon></IconButton>
               <ListItemText className={classes.paramLabel}/>
               <Button raised className={classes.paramValue} color="primary">Configure</Button>
             </ListItem>
           </Collapse>
           <Divider light/>
-          <ListItem>
-            <InfoOutlineIcon className={classes.paramIcon}/>
+          <ListItem dense disableGutters>
+            <IconButton>info_outline</IconButton>
             <ListItemText className={classes.paramLabel}/>
             <Button raised className={classes.paramValue} color="primary">Run</Button>
           </ListItem>
           <Divider light/>
-          <ListItem>
-            <WarningIcon className={classes.warningIcon}/>
+          <ListItem dense disableGutters>
+            <IconButton><Icon className={classes.warning}>warning</Icon></IconButton>
             <ListItemText className={classes.paramLabel}/>
             <Button raised className={classes.paramValue} color="primary">Pause</Button>
           </ListItem>
           <Divider light/>
-          <ListItem>
-            <InfoOutlineIcon className={classes.paramIcon}/>
+          <ListItem dense disableGutters>
+            <IconButton>info_outline</IconButton>
             <ListItemText className={classes.paramLabel}/>
             <Button raised disabled className={classes.paramValue} color="primary">Resume</Button>
           </ListItem>
@@ -227,89 +203,82 @@ class Index extends Component {
       </div>
     );
 
-    let outputLED = "";
-    if (this.state.checked) {
-      outputLED = (<RadioButtonCheckedIcon className={classes.ledIcon}/>);
-    } else {
-      outputLED = (<RadioButtonUncheckedIcon className={classes.ledIcon}/>);
-    }
-
     const rightDrawer = (
-      <div>
-        <AppBar className={classes.drawer}>
-          <ToolBar>
-            <IconButton onClick={this.handleToggle("right")}><CloseIcon/></IconButton>
-            <Typography type="subheading" className={classes.flex}>Xspress3 trigger signal output</Typography>
-            <IconButton><OpenInNewIcon/></IconButton>
-          </ToolBar>
-        </AppBar>
-        <ListItem button onClick={this.handleToggle("parameters")}>
-          <ListItemText primary="Parameters" />
-          {this.state.open.has("parameters") ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-        </ListItem>
-        <Collapse in={this.state.open.has("parameters")} transitionDuration="auto" unmountOnExit>
-          <ListItem dense>
-            <InfoOutlineIcon className={classes.paramIcon}/>
-            <ListItemText className={classes.paramLabel} primary="Output termination"/>
-            <Select
-              value={"50-Ohm"}
-              input={<Input/>} className={classes.paramValue}
-            >
-              <MenuItem value="50-Ohm">50-Ohm</MenuItem>
-              <MenuItem value="High-Z">High-Z</MenuItem>
-            </Select>
+      <div className={classes.drawer}>
+        <ToolBar disableGutters>
+          <IconButton onClick={this.handleToggle("right")}>close</IconButton>
+          <Typography type="subheading" className={classes.flex}>Xspress3 trigger signal output</Typography>
+          <IconButton>open_in_new</IconButton>
+        </ToolBar>
+        <List>
+          <ListItem button onClick={this.handleToggle("parameters")}>
+            <ListItemText primary="Parameters" />
+            {this.state.open.has("parameters") ? <Icon color="action">expand_less</Icon> : <Icon color="action">expand_more</Icon>}
           </ListItem>
-          <ListItem>
-            <InfoOutlineIcon className={classes.paramIcon}/>
-            <ListItemText className={classes.paramLabel} primary="Output enabled"/>
-            <Switch onChange={this.handleChange} checked={this.state.checked}/>
+          <Collapse in={this.state.open.has("parameters")} transitionDuration="auto" unmountOnExit>
+            <ListItem dense disableGutters>
+              <IconButton>info_outline</IconButton>
+              <ListItemText className={classes.paramLabel} primary="Output termination"/>
+              <Select
+                value={"50-Ohm"}
+                input={<Input/>} className={classes.paramValue}
+              >
+                <MenuItem value="50-Ohm">50-Ohm</MenuItem>
+                <MenuItem value="High-Z">High-Z</MenuItem>
+              </Select>
+            </ListItem>
+            <ListItem dense disableGutters>
+              <IconButton>info_outline</IconButton>
+              <ListItemText className={classes.paramLabel} primary="Output enabled"/>
+              <Switch className={classes.paramShortValue} onChange={this.handleChange} checked={this.state.checked}/>
+            </ListItem>
+          </Collapse>
+          <Divider light/>
+          <ListItem button onClick={this.handleToggle("outputs")}>
+            <ListItemText primary="Outputs" />
+            {this.state.open.has("outputs") ? <Icon color="action">expand_less</Icon> : <Icon color="action">expand_more</Icon>}
           </ListItem>
-        </Collapse>
-        <Divider light/>
-        <ListItem button onClick={this.handleToggle("outputs")}>
-          <ListItemText primary="Outputs" />
-          {this.state.open.has("outputs") ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-        </ListItem>
-        <Collapse in={this.state.open.has("outputs")} transitionDuration="auto" unmountOnExit>
-          <ListItem dense>
-            <InfoOutlineIcon className={classes.paramIcon}/>
-            <ListItemText className={classes.paramLabel} primary="Output"/>
-            {outputLED}
-          </ListItem>
-        </Collapse>
+          <Collapse in={this.state.open.has("outputs")} transitionDuration="auto" unmountOnExit>
+            <ListItem dense disableGutters>
+              <IconButton>info_outline</IconButton>
+              <ListItemText className={classes.paramLabel} primary="Output"/>
+              <Icon className={classes.paramShortValue} color="primary">gps_{this.state.checked ? "fixed" : "not_fixed"}</Icon>
+            </ListItem>
+          </Collapse>
+        </List>
       </div>
     );
 
     const mainToolbar = (
-      <ToolBar>
+      <ToolBar disableGutters>
         <IconButton
           onClick={this.handleToggle("left")}
           className={classNames(this.state.open.has("left") && classes.hideDesktop)}
         >
-          <MenuIcon/>
+          menu
         </IconButton>
-        <ToolBar className={classes.breadCrumbs}>
+        <ToolBar className={classes.breadCrumbs} disableGutters>
           <a href='http://'>
             <Typography type="subheading">BL14I-ML-SCAN-01</Typography>
           </a>
-          <IconButton id="breadcrumbs0" onClick={this.handleClick}><ExpandMoreIcon/></IconButton>
+          <IconButton id="breadcrumbs0" onClick={this.handleClick}>expand_more</IconButton>
           <a href='http://'>
             <Typography type="subheading">Layout</Typography>
           </a>
-          <IconButton id="breadcrumbs1" onClick={this.handleClick}><ExpandMoreIcon/></IconButton>
+          <IconButton id="breadcrumbs1" onClick={this.handleClick}>expand_more</IconButton>
           <a href='http://'>
             <Typography type="subheading">PANDA</Typography>
           </a>
-          <IconButton id="breadcrumbs2" onClick={this.handleClick}><ExpandMoreIcon/></IconButton>
+          <IconButton id="breadcrumbs2" onClick={this.handleClick}>expand_more</IconButton>
           <a href='http://'>
             <Typography type="subheading">Layout</Typography>
           </a>
-          <IconButton id="breadcrumbs3" onClick={this.handleClick}><ExpandMoreIcon/></IconButton>
+          <IconButton id="breadcrumbs3" onClick={this.handleClick}>expand_more</IconButton>
           <a href='http://'>
             <Typography type="subheading" className={classes.flex}>TTLOUT32</Typography>
           </a>
         </ToolBar>
-        <IconButton><OpenInNewIcon/></IconButton>
+        <IconButton>open_in_new</IconButton>
         <Menu id="menu"
               anchorEl={this.state.anchorEl}
               open={this.state.menuOpen}
@@ -355,17 +324,18 @@ class Index extends Component {
 
     const mainContent = (
       <div>
-        <AppBar className={classes.mainAppBar}>
+        <AppBar className={classes.appBar}>
           {mainToolbar}
         </AppBar>
         <Button fab className={classes.button} onClick={this.handleToggle("right")}>
-          <AddIcon />
+          <Icon>add</Icon>
         </Button>
       </div>
     );
 
     return (
       <div className={classes.root}>
+        <div className={classes.backgroundToolbar}/>
         <Hidden smUp>
           <Drawer
             type="temporary"
