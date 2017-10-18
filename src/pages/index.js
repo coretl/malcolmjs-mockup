@@ -11,7 +11,7 @@ import IconButton from 'material-ui/IconButton';
 import Button from 'material-ui/Button';
 import Collapse from 'material-ui/transitions/Collapse';
 import Menu, {MenuItem} from 'material-ui/Menu';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import List, {ListItem, ListItemText} from 'material-ui/List';
 import Drawer from 'material-ui/Drawer';
 import Divider from 'material-ui/Divider';
 import Hidden from 'material-ui/Hidden';
@@ -43,6 +43,19 @@ for (let i=1; i<45; i++) {
 
 const drawerWidth = 360;
 
+let getDropShadow = (theme, elevation) => {
+  // Turn box-shadow CSS property into drop-shadow
+  let arr = theme.shadows[elevation].split("),");
+  let el;
+  let out = [];
+  for (el in arr) {
+    let split = arr[el].split(" ");
+    split.splice(3, 1);
+    out.push("drop-shadow(" + split.join(" ") + ")");
+  }
+  return out.join(") ")
+};
+
 const styles = theme => ({
   root: {
     height: "100vh",
@@ -52,8 +65,7 @@ const styles = theme => ({
   },
   hideDesktop: {
     [theme.breakpoints.up('sm')]: {
-      width: theme.spacing.unit,
-      color: theme.palette.primary[500],
+      display: "none",
     },
   },
   drawer: {
@@ -69,8 +81,12 @@ const styles = theme => ({
     right: "48px",
   },
   breadCrumbs: {
+    marginLeft: theme.spacing.unit,
     width: "calc(100% - 48px)",
     overflow: "hidden"
+  },
+  paramLine: {
+    padding: 0,
   },
   paramLabel: {
     width: "calc(50% - 48px)",
@@ -94,13 +110,57 @@ const styles = theme => ({
   },
   warning: {
     color: orange[500]
+  },
+  inPort: {
+    dominantBaseline: "middle",
+    textAnchor: "left",
+    fill: theme.palette.text.primary,
+    ...theme.typography.caption
+  },
+  outPort: {
+    dominantBaseline: "middle",
+    textAnchor: "end",
+    fill: theme.palette.text.primary,
+    ...theme.typography.caption
+  },
+  blockTitle: {
+    textAnchor: "middle",
+    dominantBaseline: "middle",
+    fill: theme.palette.text.primary,
+    ...theme.typography.subheading
+  },
+  blockDescription: {
+    textAnchor: "middle",
+    dominantBaseline: "middle",
+    fill: theme.palette.text.secondary,
+    ...theme.typography.caption
+  },
+  blockSelected: {
+    fill: theme.palette.background.paper,
+    filter: getDropShadow(theme, 8),
+  },
+  blockUnselected: {
+    fill: theme.palette.background.default,
+    filter: getDropShadow(theme, 2),
+    webkitFilter: getDropShadow(theme, 2),
+  },
+  edgeSelected: {
+    filter: getDropShadow(theme, 1),
+    strokeWidth: 6,
+    fill: "none",
+    stroke: theme.palette.primary[300],
+  },
+  edgeUnselected: {
+    strokeWidth: 5,
+    fill: "none",
+    stroke: theme.palette.primary[500],
   }
 });
 
 
 class Index extends Component {
   state = {
-    open: new Set(["parameters", "right", "outputen"]),
+    open: new Set(["parameters", "right", "outputen", "left", "configure"]),
     anchorEl: null,
     options: [],
     selected: "",
@@ -141,7 +201,7 @@ class Index extends Component {
       <div className={classes.drawer}>
         <ToolBar disableGutters>
           <IconButton onClick={this.handleToggle("left")}>close</IconButton>
-          <Typography type="subheading" className={classes.flex}>Panda 1</Typography>
+          <Input value="Panda 1" className={classes.flex}/>
           <IconButton>open_in_new</IconButton>
         </ToolBar>
         <List>
@@ -150,17 +210,17 @@ class Index extends Component {
             {this.state.open.has("configure") ? <Icon color="action">expand_less</Icon> : <Icon color="action">expand_more</Icon>}
           </ListItem>
           <Collapse in={this.state.open.has("configure")} transitionDuration="auto" unmountOnExit>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="File Path"/>
               <Input className={classes.paramValue} placeholder={0.1}/>
             </ListItem>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="Generator"/>
               <Button className={classes.paramValue} color="primary">Generator...</Button>
             </ListItem>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="A very long parameter name that should overflow the box"/>
               <Select
@@ -175,26 +235,26 @@ class Index extends Component {
                 <MenuItem value={30}>Thirty</MenuItem>
               </Select>
             </ListItem>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton><Icon color="error">error</Icon></IconButton>
               <ListItemText className={classes.paramLabel}/>
               <Button raised className={classes.paramValue} color="primary">Configure</Button>
             </ListItem>
           </Collapse>
           <Divider light/>
-          <ListItem dense disableGutters>
+          <ListItem dense disableGutters className={classes.paramLine}>
             <IconButton>info_outline</IconButton>
             <ListItemText className={classes.paramLabel}/>
             <Button raised className={classes.paramValue} color="primary">Run</Button>
           </ListItem>
           <Divider light/>
-          <ListItem dense disableGutters>
+          <ListItem dense disableGutters className={classes.paramLine}>
             <IconButton><Icon className={classes.warning}>warning</Icon></IconButton>
             <ListItemText className={classes.paramLabel}/>
             <Button raised className={classes.paramValue} color="primary">Pause</Button>
           </ListItem>
           <Divider light/>
-          <ListItem dense disableGutters>
+          <ListItem dense disableGutters className={classes.paramLine}>
             <IconButton>info_outline</IconButton>
             <ListItemText className={classes.paramLabel}/>
             <Button raised disabled className={classes.paramValue} color="primary">Resume</Button>
@@ -207,7 +267,7 @@ class Index extends Component {
       <div className={classes.drawer}>
         <ToolBar disableGutters>
           <IconButton onClick={this.handleToggle("right")}>close</IconButton>
-          <Typography type="subheading" className={classes.flex}>Xspress3 trigger signal output</Typography>
+          <Input value="Xspress3 trigger signal output" className={classes.flex}/>
           <IconButton>open_in_new</IconButton>
         </ToolBar>
         <List>
@@ -216,7 +276,7 @@ class Index extends Component {
             {this.state.open.has("parameters") ? <Icon color="action">expand_less</Icon> : <Icon color="action">expand_more</Icon>}
           </ListItem>
           <Collapse in={this.state.open.has("parameters")} transitionDuration="auto" unmountOnExit>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="Output termination"/>
               <Select
@@ -227,10 +287,15 @@ class Index extends Component {
                 <MenuItem value="High-Z">High-Z</MenuItem>
               </Select>
             </ListItem>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="Output enabled"/>
               <Switch className={classes.paramShortValue} onChange={this.handleChange} checked={this.state.checked}/>
+            </ListItem>
+            <ListItem dense disableGutters className={classes.paramLine}>
+              <IconButton>info_outline</IconButton>
+              <ListItemText className={classes.paramLabel} primary="Current value"/>
+              <Typography className={classes.paramValue} type="body2">32.768 mm</Typography>
             </ListItem>
           </Collapse>
           <Divider light/>
@@ -239,10 +304,10 @@ class Index extends Component {
             {this.state.open.has("outputs") ? <Icon color="action">expand_less</Icon> : <Icon color="action">expand_more</Icon>}
           </ListItem>
           <Collapse in={this.state.open.has("outputs")} transitionDuration="auto" unmountOnExit>
-            <ListItem dense disableGutters>
+            <ListItem dense disableGutters className={classes.paramLine}>
               <IconButton>info_outline</IconButton>
               <ListItemText className={classes.paramLabel} primary="Output"/>
-              <Icon className={classes.paramShortValue} color="primary">gps_{this.state.checked ? "fixed" : "not_fixed"}</Icon>
+              <Icon className={classes.paramShortValue} color="primary">{this.state.checked ? "gps_fixed" : "gps_not_fixed"}</Icon>
             </ListItem>
           </Collapse>
         </List>
@@ -322,16 +387,80 @@ class Index extends Component {
       divStyle.width = "100%";
     }
 
+
     const mainContent = (
       <div>
         <AppBar className={classes.appBar}>
           {mainToolbar}
         </AppBar>
+        <svg style={{position: "absolute", top:0, left:0, width:"100%", height: "100%"}}>
+          <path d="M 220 470 C 260 470 260 330 300 330"
+                className={this.state.open.has("edge") ? classes.edgeSelected: classes.edgeUnselected}
+                onClick={this.handleToggle("edge")}
+                />
+
+          <g transform="translate(100,400)">
+            <g className={this.state.open.has("inenc1") ? classes.blockSelected: classes.blockUnselected} onClick={this.handleToggle("inenc1")}>
+              <rect height={160} width={120} rx={2} ry={2}/>
+              <image href="INENC.svg" height={160} width={120} opacity={0.25}/>
+              <circle cx={0} cy={30} r={5} fill={theme.palette.primary[500]}/>
+              <text x={8} y={30} className={classes.inPort}>
+                clock
+              </text>
+              <circle cx={120} cy={30} r={5} fill={theme.palette.primary[500]}/>
+              <text x={112} y={30} className={classes.outPort}>
+                a
+              </text>
+              <circle cx={120} cy={50} r={5} fill={theme.palette.primary[500]}/>
+              <text x={112} y={50} className={classes.outPort}>
+                b
+              </text>
+              <circle cx={120} cy={70} r={5} fill={theme.palette.primary[500]}/>
+              <text x={112} y={70} className={classes.outPort}>
+                z
+              </text>
+              <circle cx={120} cy={90} r={5} fill={theme.palette.primary[500]}/>
+              <text x={112} y={90} className={classes.outPort}>
+                data
+              </text>
+              <circle cx={120} cy={110} r={5} fill={theme.palette.secondary[500]}/>
+              <text x={112} y={110} className={classes.outPort}>
+                value
+              </text>
+              <circle cx={120} cy={130} r={5} fill={theme.palette.primary[500]}/>
+              <text x={112} y={130} className={classes.outPort}>
+                connected
+              </text>
+            </g>
+            <text x={60} y={-15} className={classes.blockTitle}>
+              INENC1
+            </text>
+            <text x={60} y={175} className={classes.blockDescription}>
+              X Encoder
+            </text>
+          </g>
+          <g transform="translate(300,300)">
+            <g className={this.state.open.has("ttlout") ? classes.blockSelected: classes.blockUnselected} onClick={this.handleToggle("ttlout")}>
+              <rect height={60} width={120} rx={2} ry={2}/>
+              <image href="TTLOUT.svg" height={60} width={120} opacity={0.25}/>
+              <circle cx={0} cy={30} r={5} fill={theme.palette.primary[500]}/>
+              <text x={8} y={30} className={classes.inPort}>
+                value
+              </text>
+            </g>
+            <text x={60} y={-15} className={classes.blockTitle}>
+              TTLOUT1
+            </text>
+            <text x={60} y={75} className={classes.blockDescription}>
+              Xspress3 trigger signal output
+            </text>
+          </g>
+        </svg>
         <Button fab className={classes.button} onClick={this.handleToggle("right")}>
           <Icon>add</Icon>
         </Button>
       </div>
-    );
+    )
 
     return (
       <div className={classes.root}>
